@@ -2,16 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import AddCategory from '../component/AddCategory';
 import AddTransaction from '../component/AddTransaction';
-import { addCategory, clearCategories, getCategories } from '../db/categoryDB';
+import { getCategories } from '../db/categoryDB';
 
-const defaultCategories = [
-  { id: 0, name: 'Food', type: 'expense' },
-  { id: 1, name: 'Shopping', type: 'expense' },
-  { id: 2, name: 'Travel', type: 'expense' },
-  { id: 3, name: 'Grocery', type: 'expense' },
-  { id: 4, name: 'Vegitable', type: 'expense' },
-  { id: 5, name: 'Health', type: 'expense' },
-];
 
 const ExpenseTab = () => {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
@@ -21,29 +13,19 @@ const ExpenseTab = () => {
 
   // Fetch categories from SQLite
   useEffect(() => {
-    fetchCategories();
+      fetchCategories();
   }, []);
+  
 
   const fetchCategories = () => {
     getCategories((data) => {
+      console.log('Fetched categories:', data);
       const expenseCategories = data.filter((category) => category.type === 'expense');
-
-      // Check if default categories exist
-      const existingCategoryNames = expenseCategories.map((cat) => cat.name);
-      const missingCategories = defaultCategories.filter(
-        (cat) => !existingCategoryNames.includes(cat.name)
-      );
-
-      // Insert missing default categories
-      if (missingCategories.length > 0) {
-        missingCategories.forEach((category) => {
-          addCategory(category.name, 'expense', () => fetchCategories());
-        });
-      } else {
-        setCategories(expenseCategories);
-      }
+      setCategories(expenseCategories);
     });
   };
+  
+  
 
 
   const openCategoryModal = () => {

@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { addCategory, getCategories } from '../db/categoryDB';
+import { addCategory, createTables, getCategories } from '../db/categoryDB';
 import AddIncomeTransaction from '../component/AddIncomeTransaction';
-import { getTransactions } from '../db/incomeDB';
 import AddCategory from '../component/AddCategory';
-
-const defaultCategories = [
-  { id: 0, name: 'Salary', type: 'income' }, 
-  { id: 1, name: 'Investments', type: 'income' },
-  { id: 2, name: 'Part-Time', type: 'income' },
-  { id: 3, name: 'Bonus', type: 'income' },
-];
-
-
 const IncomeTab = () => {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -20,34 +10,18 @@ const IncomeTab = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
 
   // Fetch categories from SQLite
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+    useEffect(() => {
+        fetchCategories(); 
+    }, []);
 
-  getTransactions(data => {
-    console.log('Current transactions:', data);
-  });
 
-  const fetchCategories = () => {
-    getCategories((data) => {
-      let incomeCategories = data.filter((category) => category.type === 'income');
-  
-      // Check if default categories exist in DB
-      const existingCategoryNames = incomeCategories.map((cat) => cat.name);
-      const missingCategories = defaultCategories.filter(
-        (cat) => !existingCategoryNames.includes(cat.name)
-      );
-  
-      // Insert missing default categories into DB
-      if (missingCategories.length > 0) {
-        missingCategories.forEach((category) => {
-          addCategory(category.name, 'income', () => fetchCategories()); 
-        });
-      } else {
-        setCategories(incomeCategories);
-      }
-    });
-  };
+   const fetchCategories = () => {
+     getCategories((data) => {
+       console.log('Fetched categories:', data);
+       const expenseCategories = data.filter((category) => category.type === 'income');
+       setCategories(expenseCategories);
+     });
+   };
 
   const openModal = () => {
     setModalVisible(true);

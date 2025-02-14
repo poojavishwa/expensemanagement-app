@@ -5,14 +5,14 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  Button,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import DatePicker from 'react-native-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from 'react-native-modal';
 import { addTransaction, createTable } from '../db/expenseDB';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 
 interface TransactionFormProps {
   visible: boolean;
@@ -24,19 +24,16 @@ interface TransactionFormProps {
 const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onClose, onSave }) => {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
-  const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+   const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
-    createTable(); // Ensure table exists on component mount
+    createTable(); 
   }, []);
 
-  const handleToggleInput = () => {
-    setOpen(true);
-  };
 
   const handleSave = () => {
-    if (!title || !amount || !selectedDate) return alert('Please fill all fields');
+    if (!title || !amount ) return alert('Please fill all fields');
 
     const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
 
@@ -71,29 +68,37 @@ const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onC
             onChangeText={setAmount}
           />
 
-          <TouchableOpacity onPress={handleToggleInput} style={styles.dateInput}>
-            <Text style={styles.dateText}>
-              {selectedDate ? moment(selectedDate).format('DD MMMM, YYYY') : 'Select date'}
-            </Text>
-          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.input}>
+                   <Text style={styles.dateText}>
+                     {moment(selectedDate).format('DD MMMM, YYYY')}
+                   </Text>
+                 </TouchableOpacity>
 
           {/* Date Picker */}
-          <DatePicker
-            modal
-            open={open}
-            date={selectedDate}
+          {showPicker && (
+          <DateTimePicker
+            value={selectedDate}
             mode="date"
-            onConfirm={(date) => {
-              setSelectedDate(date);
-              setOpen(false);
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={(event, date) => {
+              setShowPicker(false); // Hide picker after selection
+              if (date) {
+                setSelectedDate(date);
+              }
             }}
-            onCancel={() => setOpen(false)}
           />
+        )}
 
           <View style={styles.buttonContainer}>
-            <Button title="Cancel" onPress={onClose} color="red" />
-            <Button title="Save" onPress={handleSave} />
+            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
+              <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
           </View>
+
         </KeyboardAvoidingView>
       </View>
     </Modal>
@@ -116,11 +121,10 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   input: {
     width: '100%',
-    height: 40,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
+    borderRadius: 10,
+    padding: 16,
     marginBottom: 10,
   },
   dateInput: {
@@ -142,7 +146,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
+    marginTop: 10,
   },
+  button: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: '#FF0000',
+  },
+  saveButton: {
+    backgroundColor: '#0072ea',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
 });
 
 export default AddTransaction;
