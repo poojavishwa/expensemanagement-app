@@ -7,12 +7,15 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Animated,
   TouchableOpacity,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from 'react-native-modal';
 import { addTransaction, createTable } from '../db/expenseDB';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { BlurView } from '@react-native-community/blur';
+import { useNavigation } from '@react-navigation/native';
 
 interface TransactionFormProps {
   visible: boolean;
@@ -23,9 +26,11 @@ interface TransactionFormProps {
 
 const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onClose, onSave }) => {
   const [title, setTitle] = useState('');
+    const navigation =  useNavigation();
   const [amount, setAmount] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
    const [showPicker, setShowPicker] = useState(false);
+ const slideAnim = useState(new Animated.Value(Platform.OS === 'ios' ? 300 : 500))[0]; // Initial position offscreen
 
   useEffect(() => {
     createTable(); 
@@ -43,18 +48,38 @@ const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onC
       setAmount('');
       setSelectedDate(new Date());
       onClose();
+      navigation.navigate('AllExpenses',{ refresh: true });
     });
   };
+      useEffect(() => {
+        if (visible) {
+          // Slide up when the modal is visible
+          Animated.spring(slideAnim, {
+            toValue: 0,  // Final position (slide to the top)
+            useNativeDriver: true,
+          }).start();
+        } else {
+          // Slide down when the modal is not visible
+          Animated.spring(slideAnim, {
+            toValue: Platform.OS === 'ios' ? 300 : 500, // Reset to off-screen position
+            useNativeDriver: true,
+          }).start();
+        }
+      }, [visible]);
 
   return (
-    <Modal
-      isVisible={visible}
-      onBackdropPress={onClose}
-      style={styles.modal}
-      swipeDirection="down"
-      onSwipeComplete={onClose}
-      propagateSwipe
-    >
+  <View style={styles.container}>
+         {visible && (
+         // Add BlurView for background blur
+         <BlurView
+           style={styles.blurContainer}
+           blurType="light" // Blur style, can be adjusted (light, dark, extraLight, etc.)
+           blurAmount={7} // Amount of blur
+         >
+           <TouchableOpacity style={styles.background} onPress={onClose} />
+         </BlurView>
+       )}
+        <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }] }]}>
       <View style={styles.modalContent}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Text style={styles.modalTitle}>Add Transaction for {category}</Text>
@@ -101,40 +126,58 @@ const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onC
 
         </KeyboardAvoidingView>
       </View>
-    </Modal>
+    </Animated.View>
+        </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  blurContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  background: {
+    flex: 1,
+  },
+  modalContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000, // Ensure it's above other content
   },
   modalContent: {
     backgroundColor: 'white',
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    alignSelf: 'stretch', // Makes it take only the required height
-    paddingBottom: 20, // Prevents excessive bottom spacing
+    alignSelf: 'stretch',
+    paddingBottom: 20,
   },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
   input: {
     width: '100%',
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
     padding: 16,
-    marginBottom: 10,
-  },
-  dateInput: {
-    width: '100%',
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 10,
     backgroundColor: '#f9f9f9',
   },
@@ -167,7 +210,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-
 });
 
 export default AddTransaction;

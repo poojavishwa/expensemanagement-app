@@ -6,11 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
+  Animated,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Modal from 'react-native-modal';
 import moment from 'moment';
 import { addTransaction, createTable } from '../db/incomeDB';
+import { BlurView } from '@react-native-community/blur';
+import { useNavigation } from '@react-navigation/native';
 
 interface TransactionFormProps {
   visible: boolean;
@@ -20,13 +22,15 @@ interface TransactionFormProps {
 }
 
 const AddIncomeTransaction: React.FC<TransactionFormProps> = ({ visible, category, onClose, onSave }) => {
+  const navigation =  useNavigation();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+ const slideAnim = useState(new Animated.Value(Platform.OS === 'ios' ? 300 : 500))[0]; // Initial position offscreen
 
   useEffect(() => {
-    createTable(); 
+    createTable();
   }, []);
 
   const handleSave = () => {
@@ -43,18 +47,40 @@ const AddIncomeTransaction: React.FC<TransactionFormProps> = ({ visible, categor
       setAmount('');
       setSelectedDate(new Date());
       onClose();
+      navigation.navigate('AllIncome' ,{ refresh: true });
     });
   };
 
+  
+    useEffect(() => {
+      if (visible) {
+        // Slide up when the modal is visible
+        Animated.spring(slideAnim, {
+          toValue: 0,  // Final position (slide to the top)
+          useNativeDriver: true,
+        }).start();
+      } else {
+        // Slide down when the modal is not visible
+        Animated.spring(slideAnim, {
+          toValue: Platform.OS === 'ios' ? 300 : 500, // Reset to off-screen position
+          useNativeDriver: true,
+        }).start();
+      }
+    }, [visible]);
+
   return (
-    <Modal
-      isVisible={visible}
-      onBackdropPress={onClose}
-      style={styles.modal}
-      swipeDirection="down"
-      onSwipeComplete={onClose}
-      propagateSwipe
-    >
+    <View style={styles.container}>
+        {visible && (
+        // Add BlurView for background blur
+        <BlurView
+          style={styles.blurContainer}
+          blurType="light" // Blur style, can be adjusted (light, dark, extraLight, etc.)
+          blurAmount={7} // Amount of blur
+        >
+          <TouchableOpacity style={styles.background} onPress={onClose} />
+        </BlurView>
+      )}
+ <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }] }]}>
       <View style={styles.modalContent}>
         <Text style={styles.modalTitle}>Add Transaction for {category}</Text>
 
@@ -103,14 +129,38 @@ const AddIncomeTransaction: React.FC<TransactionFormProps> = ({ visible, categor
           </TouchableOpacity>
         </View>
       </View>
-    </Modal>
+    </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  blurContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  background: {
+    flex: 1,
+  },
+  modalContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000, // Ensure it's above other content
   },
   modalContent: {
     backgroundColor: 'white',

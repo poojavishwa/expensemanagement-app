@@ -1,11 +1,10 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing Icon
-// import { deleteTransactionFromDB, getTransactions } from '../db/expenseDB';
+import { useNavigation } from '@react-navigation/native';
 
 const TransactionList = ({transactions,deleteTransaction}) => {
-  const [showAll, setShowAll] = useState(false);
-
+  const navigation = useNavigation();
   const confirmDeleteTransaction = (id: number) => {
     Alert.alert(
       "Delete Expense", 
@@ -23,7 +22,7 @@ const TransactionList = ({transactions,deleteTransaction}) => {
       {/* Heading and Button */}
       <View style={styles.headerContainer}>
         <Text style={styles.headingText}>Recent Expenses</Text>
-        <TouchableOpacity style={styles.button} onPress={() => setShowAll(!showAll)}>
+        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('AllExpenses')}>
           <Text style={styles.buttonText}>Show More</Text>
         </TouchableOpacity>
       </View>
@@ -33,7 +32,7 @@ const TransactionList = ({transactions,deleteTransaction}) => {
         <Text style={styles.noDataText}>No transactions found</Text>
       ) : (
         <FlatList
-          data={showAll ? transactions : transactions.slice(0, 10)}
+          data={transactions.slice(0, 10)}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
@@ -46,7 +45,7 @@ const TransactionList = ({transactions,deleteTransaction}) => {
               {/* Amount & Category */}
               <View style={styles.rightContainer}>
                 <Text style={styles.amount}>-₹{item.amount}</Text>
-                <Text style={styles.category}>{item.category +"  "}</Text>
+                <Text style={styles.category}>{item.category +"    "}</Text>
               </View>
 
               {/* Delete Button (Cross Icon) */}

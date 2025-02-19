@@ -1,27 +1,35 @@
-import { View, Text, StyleSheet, SafeAreaView, FlatList, RefreshControl } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { deleteTransactionFromDB, getTotalExpenses, getTransactions } from '../db/expenseDB';
+import { deleteTransactionFromDB1, getTransactions1 } from '../db/incomeDB';
 import { getTotalIncome } from '../db/incomeDB';
 import TransactionList from './TransactionList';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 const Records = () => {
+    const navigation = useNavigation();
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpenses, setTotalExpenses] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
      const [transactions, setTransactions] = useState<any[]>([]);
-    console.log("transactions",transactions)
+     const [incomeTransactions, setIncomeTransactions] = useState<any[]>([]);
 
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+     useFocusEffect(
+        useCallback(() => {
+            fetchData();
+        }, [])
+    );
+    
+
 
     const fetchData = async () => {
         setRefreshing(true);
         await fetchTotalExpenses();
         await fetchTotalIncome();
         await fetchTransactions();
+        await fetchIncomeTransactions();
         setRefreshing(false);
     };
 
@@ -29,6 +37,12 @@ const Records = () => {
         getTransactions((data) => {
           console.log('Fetched Transactions:', data);
           setTransactions(data);
+        });
+      };
+      const fetchIncomeTransactions = () => {
+        getTransactions1((data) => {
+          console.log('Fetched Transactions:', data);
+          setIncomeTransactions(data);
         });
       };
 
@@ -49,6 +63,11 @@ const Records = () => {
           fetchTransactions(); // Refresh list after deletion
         });
       };
+      const deleteIncomeTransaction = (id: number) => {
+        deleteTransactionFromDB1(id, () => {
+            fetchIncomeTransactions(); // Refresh list after deletion
+        });
+      };
 
     const availableBalance = totalIncome - totalExpenses;
 
@@ -64,16 +83,20 @@ const Records = () => {
                             <Text style={styles.textStyle}>₹{availableBalance.toFixed(2)}</Text>
                         </View>
                         <View style={styles.gridContainer}>
-                            <View style={styles.gridItem}>
+                            <TouchableOpacity style={styles.gridItem}  
+                            onPress={() => {
+                                navigation.navigate('AllExpenses', { transactions,deleteTransaction,setTransactions });
+                            }}
+                            >
                                 <Icon name="wallet" size={30} color="#FF5733" />
                                 <Text>Expenses</Text>
                                 <Text>₹{totalExpenses.toFixed(2)}</Text>
-                            </View>
-                            <View style={styles.gridItem}>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('AllIncome',{incomeTransactions,setIncomeTransactions,deleteIncomeTransaction})}>
                                 <Icon name="wallet" size={30} color="#4CAF50" />
                                 <Text>Income</Text>
                                 <Text>₹ {totalIncome.toFixed(2)}</Text>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                         <TransactionList transactions={transactions} deleteTransaction={deleteTransaction} />
                     </>
@@ -89,7 +112,7 @@ const Records = () => {
 const styles = StyleSheet.create({
     container: {
         // flex: 1,
-        margin: 20,
+        margin: 15,
     },
     gridContainer: {
         marginTop: 20,

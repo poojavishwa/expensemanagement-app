@@ -48,7 +48,7 @@ export const addTransaction = (
 };
 
 // Fetch transactions
-export const getTransactions = (callback: (data: any[]) => void) => {
+export const getTransactions1 = (callback: (data: any[]) => void) => {
   db.transaction(tx => {
     tx.executeSql(
       `SELECT * FROM income;`,
@@ -80,7 +80,7 @@ export const getTotalIncome = (callback: (total: number) => void) => {
   });
 };
 
-export const deleteTransactionFromDB = (id: number, callback: () => void) => {
+export const deleteTransactionFromDB1 = (id: number, callback: () => void) => {
   db.transaction(tx => {
     tx.executeSql(
       `DELETE FROM income WHERE id = ?;`,
@@ -90,6 +90,21 @@ export const deleteTransactionFromDB = (id: number, callback: () => void) => {
         callback(); // Refresh transactions after deletion
       },
       error => console.error('Error deleting transaction:', error)
+    );
+  });
+};
+
+// Get total amount for a specific category
+export const getTotalByCategory = (category: string, callback: (total: number) => void) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT SUM(amount) AS total FROM income WHERE category = ?;`,
+      [category], // Category passed as parameter
+      (_, result) => {
+        const total = result.rows.item(0).total || 0; // Default to 0 if no data
+        callback(total);
+      },
+      error => console.error('Error fetching total for category:', error)
     );
   });
 };
