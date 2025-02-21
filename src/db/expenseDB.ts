@@ -81,6 +81,20 @@ export const getTotalExpenses = (callback: (total: number) => void) => {
   });
 };
 
+export const getTotalExpenses1 = (callback: (total: number) => void, startDate: Date, endDate: Date) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT SUM(amount) AS total FROM transactions WHERE date BETWEEN ? AND ?;`,
+      [startDate.toISOString(), endDate.toISOString()],
+      (_, result) => {
+        const total = result.rows.item(0)?.total || 0;
+        callback(total);
+      },
+      error => console.error('Error fetching total expenses:', error)
+    );
+  });
+};
+
 // Delete transaction by ID
 export const deleteTransactionFromDB = (id: number, callback: () => void) => {
   db.transaction(tx => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -6,7 +6,7 @@ import { Image, TouchableOpacity } from 'react-native';
 import Records from '../screens/Records';
 import Reports from '../screens/Reports';
 import CustomTabButton from '../component/CustomTabButton';
-import TransactionNavigator from './TransactionNavigator';  
+import TransactionNavigator from './TransactionNavigator';
 import Expenses from '../screens/Expenses';
 import Incomes from '../screens/Incomes';
 
@@ -25,7 +25,17 @@ const TabNavigator = ({ navigation }) => {
         },
       })}
     >
-      <Tab.Screen name="Records" component={Records} />
+      <Tab.Screen name="Records" component={Records}  options={{
+          headerTitle: 'Records',
+        }}/>
+ <Tab.Screen
+        name="AllIncome"
+        component={Incomes}
+        options={{
+          headerTitle: 'Records',
+          tabBarButton: () => null, // Hides the tab button
+        }}
+      />
 
       <Tab.Screen
         name="Add"
@@ -33,12 +43,22 @@ const TabNavigator = ({ navigation }) => {
         options={{
           tabBarButton: (props) => (
             <CustomTabButton {...props} onPress={() => navigation.navigate('Transaction')}>
-            <Icon name="plus" size={24} color="#000" />
-          </CustomTabButton>
+              <Icon name="plus" size={24} color="#000"  />
+            </CustomTabButton>
           ),
         }}
       />
-      <Tab.Screen name="Reports" component={Reports} />
+        <Tab.Screen
+        name="AllExpenses"
+        component={Expenses}
+        options={{
+          headerTitle: 'Records',
+          tabBarButton: () => null, // Hides the tab button
+        }}
+      />
+      <Tab.Screen name="Reports" component={Reports}  options={{
+          headerTitle: 'Report',
+        }}/>
 
     </Tab.Navigator>
   );
@@ -46,8 +66,8 @@ const TabNavigator = ({ navigation }) => {
 
 const BottomNavigation = () => {
   return (
+    <>
     <Stack.Navigator>
-      {/* Main Tab Navigation */}
       <Stack.Screen
         name="Home"
         component={TabNavigator}
@@ -58,11 +78,10 @@ const BottomNavigation = () => {
               style={{ width: 40, height: 60, resizeMode: 'contain', marginLeft: 15 }}
             />
           ),
-          headerTitle: 'Expense Tracker',
+          headerShown: false,
           headerTitleAlign: 'center',
         }}
       />
-      {/* Transaction Screen with Tab Navigator */}
       <Stack.Screen
         name="Transaction"
         component={TransactionNavigator}
@@ -72,26 +91,28 @@ const BottomNavigation = () => {
           headerTitleAlign: 'center',
         }}
       />
-         <Stack.Screen
+      <Stack.Screen
         name="AllExpenses"
         component={Expenses}
-        options={{
-          headerShown: true,
+        options={({ navigation }) => ({
+          headerShown: false,
           headerTitle: 'Expenses',
           headerTitleAlign: 'center',
-        }}
+        })}
       />
-         <Stack.Screen
+      <Stack.Screen
         name="AllIncome"
         component={Incomes}
-        options={{
-          headerShown: true,
+        options={({ navigation }) => ({
+          headerShown: false,
           headerTitle: 'Incomes',
           headerTitleAlign: 'center',
-        }}
+        })}
       />
     </Stack.Navigator>
+   </>
   );
 };
+
 
 export default BottomNavigation;

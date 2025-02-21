@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, useWindowDimensions, TextInput, TouchableOpacit
 import { TabView, TabBar } from 'react-native-tab-view';
 import IncomeReport from '../Tabs/IncomeReport';
 import ExpenseReport from '../Tabs/ExpenseReport';
-import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Import Date Picker
-import Icon from 'react-native-vector-icons/FontAwesome5';
 
-const CategoryList: React.FC = () => {
+
+const CategoryList = ({ startDate, endDate, setStartDate, setEndDate, onApplyFilter, onResetFilter }) => {
   const layout = useWindowDimensions();
+ 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'income', title: 'Income' },
@@ -15,38 +15,6 @@ const CategoryList: React.FC = () => {
   ]);
 
  
-  const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false);
-  const [isEndDatePickerVisible, setEndDatePickerVisible] = useState(false);
-
-  const getCurrentMonthRange = () => {
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    return { firstDay, lastDay };
-  };
-  
-  const { firstDay, lastDay } = getCurrentMonthRange();
-  const [startDate, setStartDate] = useState<Date | null>(firstDay);
-  const [endDate, setEndDate] = useState<Date | null>(lastDay);
-
-  
-
-  const handleStartDateConfirm = (date: Date) => {
-    setStartDate(date);
-    setStartDatePickerVisible(false);
-  };
-
-  const handleEndDateConfirm = (date: Date) => {
-    setEndDate(date);
-    setEndDatePickerVisible(false);
-  };
-
-  // Reset filters
-  const handleReset = () => {
-    const { firstDay, lastDay } = getCurrentMonthRange();
-    setStartDate(firstDay);
-    setEndDate(lastDay);
-  };
 
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
@@ -61,27 +29,6 @@ const CategoryList: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Date Range Filter Section */}
-      <View style={styles.dateRangeContainer}>
-        <Icon name="filter" size={25} color="black" />
-        <TextInput
-          style={styles.dateInput}
-          placeholder="Select Start Date"
-          value={startDate ? startDate.toLocaleDateString() : ''}
-          onFocus={() => setStartDatePickerVisible(true)}
-        />
-        <TextInput
-          style={styles.dateInput}
-          placeholder="Select End Date"
-          value={endDate ? endDate.toLocaleDateString() : ''}
-          onFocus={() => setEndDatePickerVisible(true)}
-        />
-        <TouchableOpacity onPress={handleReset}>
-          <Text style={styles.resetButton}>Reset </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* TabView Component */}
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -97,22 +44,6 @@ const CategoryList: React.FC = () => {
           />
         )}
       />
-
-      {/* Date Pickers */}
-      <DateTimePickerModal
-        isVisible={isStartDatePickerVisible}
-        mode="date"
-        date={startDate || new Date()}
-        onConfirm={handleStartDateConfirm}
-        onCancel={() => setStartDatePickerVisible(false)}
-      />
-      <DateTimePickerModal
-        isVisible={isEndDatePickerVisible}
-        mode="date"
-        date={endDate || new Date()}
-        onConfirm={handleEndDateConfirm}
-        onCancel={() => setEndDatePickerVisible(false)}
-      />
     </View>
   );
 };
@@ -122,6 +53,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
+    margin:10,
   },
   dateRangeContainer: {
     flexDirection: 'row',
@@ -145,6 +77,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     color: 'white',
   },
+ 
 });
 
 export default CategoryList;

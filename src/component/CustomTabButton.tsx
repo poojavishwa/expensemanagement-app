@@ -15,7 +15,7 @@ const CustomTabButton = ({ children, onPress }) => {
 
 const styles = StyleSheet.create({
   fabContainer: {
-    top: -40, // Adjust position above the tab bar
+    top: -30, // Adjust position above the tab bar
     justifyContent: 'center',
     alignItems: 'center',
   },

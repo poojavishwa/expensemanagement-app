@@ -1,15 +1,16 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { deleteTransactionFromDB1, getTransactions1 } from '../db/incomeDB';
+import {getTransactions1 } from '../db/incomeDB';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Picker } from '@react-native-picker/picker';
-import Icon1 from 'react-native-vector-icons/FontAwesome5';
+import FilterModal from '../component/FilterModal';
+import IncomeHeader from '../component/IncomeHeader';
 
 const Incomes = () => {
   const route = useRoute();
   const { deleteIncomeTransaction, setIncomeTransactions } = route.params || {};
+
+  const [isFilterVisible, setFilterVisible] = useState(false);
 
   const [incomeTransactions, setLocalIncomeTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -17,8 +18,6 @@ const Incomes = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false);
-  const [isEndDatePickerVisible, setEndDatePickerVisible] = useState(false);
 
   useEffect(() => {
     if (incomeTransactions.length > 0) {
@@ -49,7 +48,10 @@ const Incomes = () => {
         setFilteredTransactions(filteredData);
         setIncomeTransactions?.(data);
 
-        const uniqueCategories = [...new Set(data.map(item => item.category))];
+        const uniqueCategories = [...new Set(data.map(item => item.category))].map(category => ({
+          label: category,
+          value: category,
+        }));
         setCategories(uniqueCategories);
       });
     }, [])
@@ -73,6 +75,14 @@ const Incomes = () => {
     setFilteredTransactions(filtered);
   };
 
+  const handleApplyFilter = (filters: { category: string | null; startDate: Date; endDate: Date }) => {
+    setSelectedCategory(filters.category);
+    setStartDate(filters.startDate);
+    setEndDate(filters.endDate);
+    setFilterVisible(false); // Close modal
+    handleFilter(filters); // Apply the filters
+  };
+  
   const handleReset = () => {
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -89,49 +99,12 @@ const Incomes = () => {
     });
 
     setFilteredTransactions(currentMonthTransactions);
+    setFilterVisible(false)
   };
-
-
-
 
   return (
     <View>
-      <View style={styles.filterContainer}>
-        <Picker
-          selectedValue={selectedCategory}
-          onValueChange={itemValue => {
-            setSelectedCategory(itemValue);
-            handleFilter();
-          }}
-          style={styles.picker}
-        >
-          <Picker.Item label="Select Category" value="" /> {/* Use empty string instead of null */}
-          {categories.map((category, index) => (
-            <Picker.Item key={index} label={category} value={category} />
-          ))}
-        </Picker>
-
-
-        <View style={styles.dateRangeContainer}>
-          <Icon1 name="filter" size={25} color="black" />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="Select Start Date"
-            value={startDate ? startDate.toLocaleDateString() : ''} // Show only if selected
-            onFocus={() => setStartDatePickerVisible(true)}
-          />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="Select End Date"
-            value={endDate ? endDate.toLocaleDateString() : ''} // Show only if selected
-            onFocus={() => setEndDatePickerVisible(true)}
-          />
-
-          <TouchableOpacity onPress={handleReset}>
-            <Text style={styles.resetButton}>Reset  </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+     <IncomeHeader title="Incomes" onFilterPress={() => setFilterVisible(true)} />
 
       {filteredTransactions.length === 0 ? (
         <Text style={styles.noDataText}>No Data Found</Text>
@@ -156,30 +129,12 @@ const Incomes = () => {
           )}
         />
       )}
-
-
-      <DateTimePickerModal
-        isVisible={isStartDatePickerVisible}
-        mode="date"
-        date={startDate || new Date()}
-        onConfirm={(date) => {
-          setStartDate(date);
-          setStartDatePickerVisible(false);
-        }}
-        onCancel={() => setStartDatePickerVisible(false)}
+  <FilterModal
+        visible={isFilterVisible}
+        onApply={handleApplyFilter}
+        categories={categories}
+        handleReset={handleReset}
       />
-
-      <DateTimePickerModal
-        isVisible={isEndDatePickerVisible}
-        mode="date"
-        date={endDate || new Date()}
-        onConfirm={(date) => {
-          setEndDate(date);
-          setEndDatePickerVisible(false);
-        }}
-        onCancel={() => setEndDatePickerVisible(false)}
-      />
-
     </View>
   );
 };

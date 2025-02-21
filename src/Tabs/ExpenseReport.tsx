@@ -1,6 +1,7 @@
 import { View, Text, FlatList, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { getTransactions } from '../db/expenseDB'; // Assuming you already have this function to get all transactions.
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Transaction {
   id: number;
@@ -12,8 +13,7 @@ interface Transaction {
 
 const ExpenseReport = ({ startDate, endDate }: { startDate: Date | null; endDate: Date | null }) => {
   const [categoriesTotal, setCategoriesTotal] = useState<any[]>([]);
-
-  useEffect(() => {
+  const fetchTransactions = () => {
     // Fetch all transactions
     getTransactions((expenses) => {
       // Filter transactions based on the selected date range
@@ -42,7 +42,14 @@ const ExpenseReport = ({ startDate, endDate }: { startDate: Date | null; endDate
 
       setCategoriesTotal(categoryTotalArray); // Set the category totals
     });
-  }, [startDate, endDate]); // Re-run when startDate or endDate changes
+ 
+  }
+  
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+    }, [startDate, endDate])
+  );
 
   return (
     <View style={styles.container}>
@@ -82,7 +89,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 15,
+    padding: 10,
     borderBottomWidth: 1,
     borderColor: '#ccc',
     backgroundColor: '#f9f9f9',

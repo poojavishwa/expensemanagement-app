@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import AddCategory from '../component/AddCategory';
 import AddTransaction from '../component/AddTransaction';
-import { getCategories } from '../db/categoryDB';
+import { deleteCategory, getCategories } from '../db/categoryDB';
 
 
 const ExpenseTab = () => {
@@ -55,6 +55,25 @@ const ExpenseTab = () => {
     closeTransactionModal();
   };
 
+  const handleDeleteCategory = (id: number) => {
+    Alert.alert(
+      'Delete Category',
+      'Are you sure you want to delete this category?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: () => {
+            deleteCategory(id, () => {
+              fetchCategories(); // Refresh categories after deletion
+            });
+          }
+        }
+      ]
+    );
+  };
+
   
 
   return (
@@ -65,7 +84,9 @@ const ExpenseTab = () => {
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.item} onPress={() => openTransactionModal(item.name)}>
+            <TouchableOpacity style={styles.item} onPress={() => openTransactionModal(item.name)}
+            onLongPress={() => handleDeleteCategory(item.id)}
+            >
               <Text style={styles.text}>{item.name}</Text>
             </TouchableOpacity>
           )}

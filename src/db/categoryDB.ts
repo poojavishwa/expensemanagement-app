@@ -116,4 +116,20 @@ export const clearCategories = (callback: () => void) => {
   });
 };
 
+export const deleteCategory = (id: number, callback: () => void) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      'DELETE FROM categories WHERE id = ?;',
+      [id],
+      (_, result) => {
+        console.log('Category deleted:', result);
+        callback();
+      },
+      (_, error) => {
+        console.error('Error deleting category:', error);
+      }
+    );
+  });
+};
+
 

@@ -26,8 +26,7 @@ const TransactionList = ({transactions,deleteTransaction}) => {
           <Text style={styles.buttonText}>Show More</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Check if transactions exist */}
+    <View style={styles.cantainer}>
       {transactions.length === 0 ? (
         <Text style={styles.noDataText}>No transactions found</Text>
       ) : (
@@ -56,11 +55,15 @@ const TransactionList = ({transactions,deleteTransaction}) => {
           )}
         />
       )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  cantainer:{
+    marginBottom:40,
+  },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

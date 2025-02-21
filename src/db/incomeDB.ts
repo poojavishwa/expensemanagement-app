@@ -80,6 +80,20 @@ export const getTotalIncome = (callback: (total: number) => void) => {
   });
 };
 
+export const getTotalIncome1 = (callback: (total: number) => void, startDate: Date, endDate: Date) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT SUM(amount) AS total FROM income WHERE date BETWEEN ? AND ?;`,
+      [startDate.toISOString(), endDate.toISOString()], // Pass dates as parameters
+      (_, result) => {
+        const total = result.rows.item(0)?.total || 0; // Default to 0 if no data
+        callback(total);
+      },
+      error => console.error('Error fetching total income:', error)
+    );
+  });
+};
+
 export const deleteTransactionFromDB1 = (id: number, callback: () => void) => {
   db.transaction(tx => {
     tx.executeSql(

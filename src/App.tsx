@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createTables } from './db/categoryDB';
 import BottomNavigation from './navigation/BottomNavigation';
+import { FilterProvider } from './context/FilterContext';
 
 
 const App = () => {

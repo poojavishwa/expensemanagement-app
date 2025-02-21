@@ -6,6 +6,8 @@ import { deleteTransactionFromDB1, getTransactions1 } from '../db/incomeDB';
 import { getTotalIncome } from '../db/incomeDB';
 import TransactionList from './TransactionList';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import IncomeHeader from '../component/IncomeHeader';
+import HomeHeader from '../component/HomeHeader';
 
 const Records = () => {
     const navigation = useNavigation();
@@ -72,6 +74,8 @@ const Records = () => {
     const availableBalance = totalIncome - totalExpenses;
 
     return (
+        <>
+        <HomeHeader title="Expense Tracker"  />
         <SafeAreaView style={styles.container}>
             <FlatList
                 data={[]} // Empty data, because transactions are inside TransactionList
@@ -106,6 +110,7 @@ const Records = () => {
                 }
             />
         </SafeAreaView>
+        </>
     );
 };
 
