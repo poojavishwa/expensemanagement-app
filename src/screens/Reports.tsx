@@ -8,6 +8,8 @@
 import ReportFilterModal from '../component/ReportFilterModal';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
+
+
   const Reports = () => {
 
     const screenWidth = Dimensions.get('window').width;
@@ -57,6 +59,8 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
       { name: 'Income', amount: totalIncome, color: '#36A2EB', legendFontColor: 'black', legendFontSize: 14 },
       { name: 'Expenses', amount: totalExpenses, color: '#FF6384', legendFontColor: 'black', legendFontSize: 14 },
     ];
+
+    
 
     return (
       <>

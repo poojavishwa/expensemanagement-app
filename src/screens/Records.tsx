@@ -1,29 +1,64 @@
-import { View, Text, StyleSheet, SafeAreaView, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, RefreshControl, TouchableOpacity, Image, Platform } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import { deleteTransactionFromDB, getTotalExpenses, getTransactions } from '../db/expenseDB';
 import { deleteTransactionFromDB1, getTransactions1 } from '../db/incomeDB';
 import { getTotalIncome } from '../db/incomeDB';
 import TransactionList from './TransactionList';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import IncomeHeader from '../component/IncomeHeader';
 import HomeHeader from '../component/HomeHeader';
+import { InterstitialAd, TestIds, AdEventType } from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-9070914924630643/1566770090';
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+    keywords: ['fashion', 'clothing'],
+  });
 
 const Records = () => {
     const navigation = useNavigation();
     const [totalIncome, setTotalIncome] = useState(0);
     const [totalExpenses, setTotalExpenses] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
-     const [transactions, setTransactions] = useState<any[]>([]);
-     const [incomeTransactions, setIncomeTransactions] = useState<any[]>([]);
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const [incomeTransactions, setIncomeTransactions] = useState<any[]>([]);
+    const [adLoaded, setAdLoaded] = useState(false);
+    const [navigateTo, setNavigateTo] = useState<string | null>(null);
 
-
-     useFocusEffect(
+    useFocusEffect(
         useCallback(() => {
             fetchData();
         }, [])
     );
-    
+
+
+    useEffect(() => {
+        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+        });
+
+        const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+            if (Platform.OS === 'ios') {
+                StatusBar.setHidden(false);
+            }
+            if (navigateTo === 'expenses') {
+                navigation.navigate('AllExpenses', { transactions, deleteTransaction, setTransactions });
+            } else if (navigateTo === 'income') {
+                navigation.navigate('AllIncome', { incomeTransactions, setIncomeTransactions, deleteIncomeTransaction });
+            }
+            setNavigateTo(null); // Reset navigation state
+        });
+
+        // Load the ad
+        interstitial.load();
+
+        return () => {
+            unsubscribeLoaded();
+            unsubscribeClosed();
+        };
+    }, [navigateTo]);
+
+
+   
+
 
 
     const fetchData = async () => {
@@ -37,16 +72,16 @@ const Records = () => {
 
     const fetchTransactions = () => {
         getTransactions((data) => {
-          console.log('Fetched Transactions:', data);
-          setTransactions(data);
+            // console.log('Fetched Transactions:', data);
+            setTransactions(data);
         });
-      };
-      const fetchIncomeTransactions = () => {
+    };
+    const fetchIncomeTransactions = () => {
         getTransactions1((data) => {
-          console.log('Fetched Transactions:', data);
-          setIncomeTransactions(data);
+            console.log('Fetched Transactions:', data);
+            setIncomeTransactions(data);
         });
-      };
+    };
 
     const fetchTotalExpenses = async () => {
         getTotalExpenses((total) => {
@@ -60,56 +95,73 @@ const Records = () => {
         });
     };
 
-     const deleteTransaction = (id: number) => {
+    const deleteTransaction = (id: number) => {
         deleteTransactionFromDB(id, () => {
-          fetchTransactions(); // Refresh list after deletion
+            fetchTransactions(); 
         });
-      };
-      const deleteIncomeTransaction = (id: number) => {
+    };
+    const deleteIncomeTransaction = (id: number) => {
         deleteTransactionFromDB1(id, () => {
-            fetchIncomeTransactions(); // Refresh list after deletion
+            fetchIncomeTransactions(); 
         });
-      };
+    };
 
     const availableBalance = totalIncome - totalExpenses;
 
+    const showAdOrNavigate = (type: 'expenses' | 'income') => {
+        if (adLoaded) {
+            setNavigateTo(type);
+            interstitial.show(); // Show Ad First
+        } else {
+            if (type === 'expenses') {
+                navigation.navigate('AllExpenses', { transactions, deleteTransaction, setTransactions });
+            } else {
+                navigation.navigate('AllIncome', { incomeTransactions, setIncomeTransactions, deleteIncomeTransaction });
+            }
+        }
+    }
+
     return (
         <>
-        <HomeHeader title="Expense Tracker"  />
-        <SafeAreaView style={styles.container}>
-            <FlatList
-                data={[]} // Empty data, because transactions are inside TransactionList
-                keyExtractor={(item, index) => index.toString()}
-                ListHeaderComponent={(
-                    <>
-                        <View style={styles.box}>
-                            <Text style={styles.textStyle}>Available Balance</Text>
-                            <Text style={styles.textStyle}>₹{availableBalance.toFixed(2)}</Text>
-                        </View>
-                        <View style={styles.gridContainer}>
-                            <TouchableOpacity style={styles.gridItem}  
-                            onPress={() => {
-                                navigation.navigate('AllExpenses', { transactions,deleteTransaction,setTransactions });
-                            }}
-                            >
-                                <Icon name="wallet" size={30} color="#FF5733" />
-                                <Text>Expenses</Text>
-                                <Text>₹{totalExpenses.toFixed(2)}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate('AllIncome',{incomeTransactions,setIncomeTransactions,deleteIncomeTransaction})}>
-                                <Icon name="wallet" size={30} color="#4CAF50" />
-                                <Text>Income</Text>
-                                <Text>₹ {totalIncome.toFixed(2)}</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <TransactionList transactions={transactions} deleteTransaction={deleteTransaction} />
-                    </>
-                )}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
-                }
-            />
-        </SafeAreaView>
+            <HomeHeader title="Spend Sage" />
+            <SafeAreaView style={styles.container}>
+                <FlatList
+                    data={[]} // Empty data, because transactions are inside TransactionList
+                    keyExtractor={(item, index) => index.toString()}
+                    ListHeaderComponent={(
+                        <>
+                            <View style={styles.box}>
+                                <Text style={styles.textStyle}>Available Balance</Text>
+                                <Text style={styles.textStyle}>₹{availableBalance.toFixed(2)}</Text>
+                            </View>
+                            <View style={styles.gridContainer}>
+                                <TouchableOpacity style={styles.gridItem}   onPress={() => showAdOrNavigate('expenses')}>
+                                    <Image
+                                        source={require("../assets/expense.png")} // Change this to your actual image path
+                                        style={{ width: 40, height: 40, resizeMode: "contain" }}
+                                    />
+                                    <Text>Expenses</Text>
+                                    <Text>₹{totalExpenses.toFixed(2)}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.gridItem} 
+                                onPress={() => showAdOrNavigate('income')}>
+                                <Image
+                                        source={require("../assets/income.png")} // Change this to your actual image path
+                                        style={{ width: 40, height: 40, resizeMode: "contain" }}
+                                    />
+                                    <Text>Income</Text>
+                                    <Text>₹ {totalIncome.toFixed(2)}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <TransactionList transactions={transactions} deleteTransaction={deleteTransaction} 
+                             showAdOrNavigate={showAdOrNavigate}/>
+                        </>
+                    )}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+                    }
+                />
+            </SafeAreaView>
         </>
     );
 };
@@ -136,12 +188,14 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     box: {
-        backgroundColor: "#fbbc05",
+        backgroundColor: "#10b981",
+        color: "white",
         padding: 30,
         borderRadius: 10,
     },
     textStyle: {
         textAlign: "center",
+        color: "white",
         fontSize: 20,
         fontWeight: "bold",
     }

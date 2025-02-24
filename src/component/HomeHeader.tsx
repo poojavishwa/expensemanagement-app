@@ -12,7 +12,7 @@ const HomeHeader: React.FC<HeaderProps> = ({ title,showFilter = true, onFilterPr
     return (
         <View style={styles.container}>
             <Image
-                source={require("../assets/capital.png")}
+                source={require("../assets/halfLogo.png")}
                 style={styles.logo}
             />
             <Text style={styles.title}>{title}</Text>
@@ -34,16 +34,17 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "center",
         paddingHorizontal: 10,
         backgroundColor: "#fff",
         borderBottomWidth: 1,
         borderBottomColor: "#ddd",
     },
     logo: {
-        width: 40,
-        height: 60,
+        width: 50,
+        height: 70,
         resizeMode: "contain",
+        marginLeft:5,
     },
     title: {
         fontSize: 18,

@@ -19,7 +19,7 @@ const ExpenseTab = () => {
 
   const fetchCategories = () => {
     getCategories((data) => {
-      console.log('Fetched categories:', data);
+      // console.log('Fetched categories:', data);
       const expenseCategories = data.filter((category) => category.type === 'expense');
       setCategories(expenseCategories);
     });
@@ -51,7 +51,7 @@ const ExpenseTab = () => {
   };
 
   const handleSaveTransaction = (title: string, amount: string, date: string) => {
-    console.log('Transaction Saved:', { title, amount, date, category: selectedCategory });
+    // console.log('Transaction Saved:', { title, amount, date, category: selectedCategory });
     closeTransactionModal();
   };
 
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   text: { fontSize: 16, fontWeight: 'bold' },
   addButton: {
-    backgroundColor: '#fbbc05',
+    backgroundColor: '#10b981',
     padding: 15,
     margin: 20,
     borderRadius: 10,

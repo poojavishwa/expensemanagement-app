@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {getTransactions1 } from '../db/incomeDB';
+import {deleteTransactionFromDB1, getTransactions1 } from '../db/incomeDB';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import FilterModal from '../component/FilterModal';
 import IncomeHeader from '../component/IncomeHeader';
+import moment from 'moment';
 
 const Incomes = () => {
   const route = useRoute();
@@ -102,6 +103,30 @@ const Incomes = () => {
     setFilterVisible(false)
   };
 
+    const confirmDeleteTransaction = (id) => {
+          Alert.alert(
+              "Delete Expense",
+              "Are you sure you want to delete this transaction?",
+              [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                      text: "Delete",
+                      style: "destructive",
+                      onPress: () => {
+                          deleteTransactionFromDB1(id);
+                          const updatedTransactions = incomeTransactions.filter(txn => txn.id !== id);
+                          setLocalIncomeTransactions(updatedTransactions);
+                          setIncomeTransactions?.(updatedTransactions);
+
+                            // Update the filtered transactions immediately
+                        const updatedFiltered = filteredTransactions.filter(txn => txn.id !== id);
+                        setFilteredTransactions(updatedFiltered);
+                      }
+                  }
+              ]
+          );
+      };
+
   return (
     <View>
      <IncomeHeader title="Incomes" onFilterPress={() => setFilterVisible(true)} />
@@ -116,11 +141,11 @@ const Incomes = () => {
             <View style={styles.itemContainer}>
               <View style={styles.detailsContainer}>
                 <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.date}>{item.date}</Text>
+                <Text style={styles.date}>{moment(item.date).format('DD-MM-YYYY')}</Text>
               </View>
               <View style={styles.rightContainer}>
                 <Text style={styles.amount}>+₹{item.amount}</Text>
-                <Text style={styles.category}>{item.category}  </Text>
+                <Text style={styles.category}>{item.category}     </Text>
               </View>
               <TouchableOpacity onPress={() => confirmDeleteTransaction(item.id)} style={styles.deleteButton}>
                 <Icon name="close" size={24} color="gray" />

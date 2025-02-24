@@ -5,6 +5,7 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { getTransactions } from '../db/expenseDB';
 import ExpenseHeader from '../component/ExpenseHeader';
 import ExpenseFilterModal from '../component/ExpenseFilterModal';
+import moment from 'moment';
 
 const Expenses = () => {
 
@@ -118,6 +119,10 @@ const Expenses = () => {
                         const updatedTransactions = transactions.filter(txn => txn.id !== id);
                         setLocalTransactions(updatedTransactions);
                         setTransactions?.(updatedTransactions);
+
+                              // Update the filtered transactions immediately
+                              const updatedFiltered = filteredTransactions.filter(txn => txn.id !== id);
+                              setFilteredTransactions(updatedFiltered);
                     }
                 }
             ]
@@ -137,7 +142,7 @@ const Expenses = () => {
                         <View style={styles.itemContainer}>
                             <View style={styles.detailsContainer}>
                                 <Text style={styles.title}>{item.title}</Text>
-                                <Text style={styles.date}>{item.date}</Text>
+                                <Text style={styles.date}>{moment(item.date).format('DD-MM-YYYY')}</Text>
                             </View>
                             <View style={styles.rightContainer}>
                                 <Text style={styles.amount}>-₹{item.amount}</Text>

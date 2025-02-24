@@ -17,7 +17,7 @@ const IncomeReport = ({ startDate, endDate }: { startDate: Date | null; endDate:
   const fetchTransactions = () => {
     getTransactions1((transactions) => {
       // Filter transactions based on the selected date range
-      console.log("Fetched Transactions:", transactions);
+      // console.log("Fetched Transactions:", transactions);
       const filteredTransactions = transactions.filter((transaction: Transaction) => {
         const transactionDate = new Date(transaction.date);
         return (

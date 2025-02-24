@@ -1,4 +1,7 @@
 {
   "name": "expensemanagement",
-  "displayName": "expensemanagement"
+  "displayName": "expensemanagement",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-9070914924630643~2258138882"
+  }
 }

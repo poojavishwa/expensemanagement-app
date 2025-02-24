@@ -3,6 +3,7 @@ import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import moment from 'moment';
 
 const ReportFilterModal = ({visible, onApply, handleReset, startDate, endDate, setStartDate, setEndDate }) => {
   const [showStartPicker, setShowStartPicker] = useState(false);
@@ -15,7 +16,7 @@ const ReportFilterModal = ({visible, onApply, handleReset, startDate, endDate, s
           <Text style={styles.title}>Filter Transactions</Text>
           {/* Date Range Pickers */}
           <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.dateButton}>
-            <Text>Start Date: {startDate.toDateString()}               </Text>
+            <Text>Start Date: {moment(startDate).format('DD-MM-YYYY')}              </Text>
             <Icon name="calendar-today" size={20} color="gray" style={styles.calendarIcon} />
           </TouchableOpacity>
           {showStartPicker && (
@@ -31,7 +32,7 @@ const ReportFilterModal = ({visible, onApply, handleReset, startDate, endDate, s
           )}
 
           <TouchableOpacity onPress={() => setShowEndPicker(true)} style={styles.dateButton}>
-            <Text>End Date: {endDate.toDateString()}  </Text>
+            <Text>End Date: {moment(endDate).format('DD-MM-YYYY')}          </Text>
             <Icon name="calendar-today" size={20} color="gray" style={styles.calendarIcon} />
           </TouchableOpacity>
           {showEndPicker && (
@@ -49,7 +50,7 @@ const ReportFilterModal = ({visible, onApply, handleReset, startDate, endDate, s
           {/* Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={handleReset} style={[styles.button,styles.cancelButton]}>
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>Reset</Text>
             </TouchableOpacity>
             <TouchableOpacity
              onPress={() => onApply({ startDate, endDate })}

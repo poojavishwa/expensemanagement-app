@@ -2,8 +2,9 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react
 import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing Icon
 import { useNavigation } from '@react-navigation/native';
+import moment from 'moment';
 
-const TransactionList = ({transactions,deleteTransaction}) => {
+const TransactionList = ({transactions,deleteTransaction,showAdOrNavigate}) => {
   const navigation = useNavigation();
   const confirmDeleteTransaction = (id: number) => {
     Alert.alert(
@@ -22,7 +23,9 @@ const TransactionList = ({transactions,deleteTransaction}) => {
       {/* Heading and Button */}
       <View style={styles.headerContainer}>
         <Text style={styles.headingText}>Recent Expenses</Text>
-        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('AllExpenses')}>
+        <TouchableOpacity style={styles.button} 
+           onPress={() => showAdOrNavigate('expenses')}
+          >
           <Text style={styles.buttonText}>Show More</Text>
         </TouchableOpacity>
       </View>
@@ -38,7 +41,7 @@ const TransactionList = ({transactions,deleteTransaction}) => {
               {/* Transaction Details */}
               <View style={styles.detailsContainer}>
                 <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.date}>{item.date}</Text>
+                <Text style={styles.date}>{moment(item.date).format('DD-MM-YYYY')}</Text>
               </View>
               
               {/* Amount & Category */}
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#fbbc05',
+    backgroundColor: '#10b981',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 5,
@@ -83,7 +86,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#fff',
     textAlign: 'center',
   },
   noDataText: {
