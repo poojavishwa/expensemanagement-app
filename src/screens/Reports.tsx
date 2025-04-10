@@ -1,13 +1,12 @@
-  import React, { useEffect, useState } from 'react';
-  import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-  import { PieChart, BarChart } from 'react-native-chart-kit';
-  import {  getTotalExpenses1 } from '../db/expenseDB';
-  import { getTotalIncome1 } from '../db/incomeDB';
-  import CategoryList from './CategoryList';
-  import HomeHeader from '../component/HomeHeader';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import { PieChart, BarChart } from 'react-native-chart-kit';
+import {  getTotalExpenses1 } from '../db/expenseDB';
+import { getTotalIncome1 } from '../db/incomeDB';
+import CategoryList from './CategoryList';
+import HomeHeader from '../component/HomeHeader';
 import ReportFilterModal from '../component/ReportFilterModal';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-
+import MyNativeAd from '../adds/NativeAdComponent';
 
 
   const Reports = () => {
@@ -87,6 +86,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
      onApplyFilter={handleApplyFilter}
      onResetFilter={handleReset}
     />
+     {/* <MyNativeAd/> */}
       <ReportFilterModal
             visible={isFilterVisible}
             onApply={handleApplyFilter}

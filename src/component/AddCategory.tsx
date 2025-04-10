@@ -8,6 +8,7 @@ import {
   Platform,
   Animated,
   TouchableOpacity,
+  useColorScheme,
 } from 'react-native';
 import { addCategory } from '../db/categoryDB';
 import { BlurView } from '@react-native-community/blur';  // Import for blur effect
@@ -20,6 +21,8 @@ interface AddCategoryProps {
 }
 
 const AddCategory: React.FC<AddCategoryProps> = ({ visible, type, onClose, onSave }) => {
+  const colorScheme = useColorScheme();
+      const isDarkMode = colorScheme === 'dark';
   const [categoryName, setCategoryName] = useState('');
   const slideAnim = useState(new Animated.Value(Platform.OS === 'ios' ? 300 : 500))[0]; // Initial position offscreen (300 for iOS and 500 for Android)
 
@@ -67,8 +70,9 @@ const AddCategory: React.FC<AddCategoryProps> = ({ visible, type, onClose, onSav
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <Text style={styles.modalTitle}>Add {type} Category</Text>
             <TextInput
-              style={styles.input}
+             style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9', color: isDarkMode ? '#fff' : '#000' }]}
               placeholder="Category Name"
+              placeholderTextColor={isDarkMode ? '#aaa' : '#555'} 
               value={categoryName}
               onChangeText={setCategoryName}
             />

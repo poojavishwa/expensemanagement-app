@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Animated,
+  useColorScheme,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -22,6 +23,8 @@ interface TransactionFormProps {
 }
 
 const AddIncomeTransaction: React.FC<TransactionFormProps> = ({ visible, category, onClose, onSave }) => {
+   const colorScheme = useColorScheme();
+    const isDarkMode = colorScheme === 'dark';
   const navigation =  useNavigation();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -85,22 +88,25 @@ const AddIncomeTransaction: React.FC<TransactionFormProps> = ({ visible, categor
         <Text style={styles.modalTitle}>Add Transaction for {category}</Text>
 
         <TextInput
-          style={styles.input}
+                style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9', color: isDarkMode ? '#fff' : '#000' }]}
           placeholder="Enter title"
+          placeholderTextColor={isDarkMode ? '#aaa' : '#555'} 
           value={title}
           onChangeText={setTitle}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9', color: isDarkMode ? '#fff' : '#000' }]}
           placeholder="Enter amount"
+          placeholderTextColor={isDarkMode ? '#aaa' : '#555'} 
           keyboardType="numeric"
           value={amount}
           onChangeText={setAmount}
         />
 
         {/* Date Picker */}
-        <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.input}>
-          <Text style={styles.dateText}>
+        <TouchableOpacity onPress={() => setShowPicker(true)}       
+        style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9', color: isDarkMode ? '#fff' : '#000' }]}>
+          <Text style={[styles.dateText, { color: isDarkMode ? '#fff' : '#333' }]}>
             {moment(selectedDate).format('DD MMMM, YYYY')}
           </Text>
         </TouchableOpacity>

@@ -9,6 +9,7 @@ import {
   Platform,
   Animated,
   TouchableOpacity,
+  useColorScheme,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Modal from 'react-native-modal';
@@ -25,6 +26,8 @@ interface TransactionFormProps {
 }
 
 const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onClose, onSave }) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const [title, setTitle] = useState('');
     const navigation =  useNavigation();
   const [amount, setAmount] = useState('');
@@ -73,7 +76,7 @@ const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onC
          // Add BlurView for background blur
          <BlurView
            style={styles.blurContainer}
-           blurType="light" // Blur style, can be adjusted (light, dark, extraLight, etc.)
+           blurType={isDarkMode ? 'dark' : 'light'} // Blur style, can be adjusted (light, dark, extraLight, etc.)
            blurAmount={7} // Amount of blur
          >
            <TouchableOpacity style={styles.background} onPress={onClose} />
@@ -84,17 +87,24 @@ const AddTransaction: React.FC<TransactionFormProps> = ({ visible, category, onC
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Text style={styles.modalTitle}>Add Transaction for {category}</Text>
 
-          <TextInput style={styles.input} placeholder="Enter title" value={title} onChangeText={setTitle} />
+          <TextInput 
+           style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9', color: isDarkMode ? '#fff' : '#000' }]}
+             placeholder="Enter title"
+             placeholderTextColor={isDarkMode ? '#aaa' : '#555'} 
+              value={title} 
+              onChangeText={setTitle} />
+
           <TextInput
-            style={styles.input}
+           style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9', color: isDarkMode ? '#fff' : '#000' }]}
             placeholder="Enter amount"
+            placeholderTextColor={isDarkMode ? '#aaa' : '#555'} 
             keyboardType="numeric"
             value={amount}
             onChangeText={setAmount}
           />
 
-          <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.input}>
-                   <Text style={styles.dateText}>
+          <TouchableOpacity onPress={() => setShowPicker(true)} style={[styles.input, { backgroundColor: isDarkMode ? '#333' : '#f9f9f9' }]}>
+                   <Text style={[styles.dateText, { color: isDarkMode ? '#fff' : '#333' }]}>
                      {moment(selectedDate).format('DD MMMM, YYYY')}
                    </Text>
                  </TouchableOpacity>

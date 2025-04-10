@@ -5,8 +5,8 @@ import { useNavigation } from "@react-navigation/native";
 
 interface HeaderProps {
   title: string;
-  showFilter?: boolean; // Optional prop to show/hide filter icon
-  onFilterPress?: () => void; // Function when filter is pressed
+  showFilter?: boolean; 
+  onFilterPress?: () => void; 
 }
 
 const ExpenseHeader: React.FC<HeaderProps> = ({ title, showFilter = true, onFilterPress }) => {
@@ -22,13 +22,12 @@ const ExpenseHeader: React.FC<HeaderProps> = ({ title, showFilter = true, onFilt
       {/* Title */}
       <Text style={styles.title}>{title}</Text>
 
-      {/* Filter Icon (optional) */}
       {showFilter ? (
         <TouchableOpacity onPress={onFilterPress} style={styles.icon}>
           <Icon name="filter" size={24} color="#000" />
         </TouchableOpacity>
       ) : (
-        <View style={styles.icon} /> // Placeholder for spacing
+        <View style={styles.icon} /> 
       )}
     </View>
   );

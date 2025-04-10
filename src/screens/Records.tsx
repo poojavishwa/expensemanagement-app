@@ -6,12 +6,6 @@ import { getTotalIncome } from '../db/incomeDB';
 import TransactionList from './TransactionList';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import HomeHeader from '../component/HomeHeader';
-import { InterstitialAd, TestIds, AdEventType } from 'react-native-google-mobile-ads';
-
-const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-9070914924630643/1566770090';
-const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
-    keywords: ['fashion', 'clothing'],
-  });
 
 const Records = () => {
     const navigation = useNavigation();
@@ -22,7 +16,6 @@ const Records = () => {
     const [incomeTransactions, setIncomeTransactions] = useState<any[]>([]);
     const [adLoaded, setAdLoaded] = useState(false);
     const [navigateTo, setNavigateTo] = useState<string | null>(null);
-
     useFocusEffect(
         useCallback(() => {
             fetchData();
@@ -31,29 +24,13 @@ const Records = () => {
 
 
     useEffect(() => {
-        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-            setAdLoaded(true);
-        });
-
-        const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
-            if (Platform.OS === 'ios') {
-                StatusBar.setHidden(false);
-            }
             if (navigateTo === 'expenses') {
                 navigation.navigate('AllExpenses', { transactions, deleteTransaction, setTransactions });
             } else if (navigateTo === 'income') {
                 navigation.navigate('AllIncome', { incomeTransactions, setIncomeTransactions, deleteIncomeTransaction });
             }
             setNavigateTo(null); // Reset navigation state
-        });
 
-        // Load the ad
-        interstitial.load();
-
-        return () => {
-            unsubscribeLoaded();
-            unsubscribeClosed();
-        };
     }, [navigateTo]);
 
 
@@ -111,7 +88,6 @@ const Records = () => {
     const showAdOrNavigate = (type: 'expenses' | 'income') => {
         if (adLoaded) {
             setNavigateTo(type);
-            interstitial.show(); // Show Ad First
         } else {
             if (type === 'expenses') {
                 navigation.navigate('AllExpenses', { transactions, deleteTransaction, setTransactions });

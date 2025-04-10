@@ -6,6 +6,8 @@ import { getTransactions } from '../db/expenseDB';
 import ExpenseHeader from '../component/ExpenseHeader';
 import ExpenseFilterModal from '../component/ExpenseFilterModal';
 import moment from 'moment';
+import MobileAds from 'react-native-google-mobile-ads';
+import MyNativeAd from '../adds/NativeAdComponent';
 
 const Expenses = () => {
 
@@ -27,6 +29,13 @@ const Expenses = () => {
             handleFilter();
         }
     }, [startDate, endDate, selectedCategory]);
+
+
+
+   useEffect(() => {
+    MobileAds().initialize();
+  }, []);
+      
 
     useFocusEffect(
         React.useCallback(() => {
@@ -132,6 +141,7 @@ const Expenses = () => {
     return (
         <View>
             <ExpenseHeader title="Expenses" onFilterPress={() => setFilterVisible(true)} />
+            {/* <MyNativeAd/> */}
             {filteredTransactions.length === 0 ? (
                 <Text style={styles.noDataText}>No Data Found</Text>
             ) : (

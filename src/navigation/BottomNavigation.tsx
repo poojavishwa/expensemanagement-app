@@ -9,51 +9,11 @@ import CustomTabButton from '../component/CustomTabButton';
 import TransactionNavigator from './TransactionNavigator';
 import Expenses from '../screens/Expenses';
 import Incomes from '../screens/Incomes';
-import { InterstitialAd, TestIds, AdEventType } from 'react-native-google-mobile-ads';
-
-const adUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-9070914924630643/1566770090';
-const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
-  keywords: ['fashion', 'clothing'],
-});
-
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const TabNavigator = ({ navigation }) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [navigateTo, setNavigateTo] = useState<string | null>(null);
-
-  useEffect(() => {
-    const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-      setAdLoaded(true);
-    });
-
-    const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
-      if (navigateTo) {
-        navigation.navigate(navigateTo); // Navigate after ad is closed
-      }
-      setNavigateTo(null);
-    });
-
-    interstitial.load(); // Load the ad
-
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeClosed();
-    };
-  }, [navigateTo]);
-
-  const showAdOrNavigate = (screen: 'Reports') => {
-    if (adLoaded) {
-      setNavigateTo(screen);
-      interstitial.show(); // Show ad before navigation
-    } else {
-      navigation.navigate(screen); // Direct navigation if ad not loaded
-    }
-  };
-
-
 
   return (
     <Tab.Navigator
@@ -112,7 +72,6 @@ const TabNavigator = ({ navigation }) => {
         options={{
           tabBarLabel: "Reports", // Ensures the label is shown
           tabBarIcon: ({ focused }) => (
-            <TouchableOpacity>
               <Image
                 source={require("../assets/report.png")}
                 style={{
@@ -122,7 +81,6 @@ const TabNavigator = ({ navigation }) => {
                   tintColor: focused ? "#007AFF" : "#999",
                 }}
               />
-            </TouchableOpacity>
           ),
         }}
       />

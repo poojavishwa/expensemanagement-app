@@ -59,12 +59,13 @@ export const getTransactions1 = (callback: (data: any[]) => void) => {
         for (let i = 0; i < rows.length; i++) {
           transactions.push(rows.item(i));
         }
-        callback(transactions);
+        callback(transactions.reverse()); // Reverse the array before passing to callback
       },
       error => console.error('Error retrieving transactions:', error)
     );
   });
 };
+
 
 export const getTotalIncome = (callback: (total: number) => void) => {
   db.transaction(tx => {

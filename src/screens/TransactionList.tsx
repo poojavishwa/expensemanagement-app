@@ -65,7 +65,7 @@ const TransactionList = ({transactions,deleteTransaction,showAdOrNavigate}) => {
 
 const styles = StyleSheet.create({
   cantainer:{
-    marginBottom:40,
+    marginBottom:100,
   },
   headerContainer: {
     flexDirection: 'row',

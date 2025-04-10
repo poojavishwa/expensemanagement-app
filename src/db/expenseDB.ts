@@ -47,7 +47,6 @@ export const addTransaction = (
   });
 };
 
-
 // Fetch transactions
 export const getTransactions = (callback: (data: any[]) => void) => {
   db.transaction(tx => {
@@ -60,12 +59,13 @@ export const getTransactions = (callback: (data: any[]) => void) => {
         for (let i = 0; i < rows.length; i++) {
           transactions.push(rows.item(i));
         }
-        callback(transactions);
+        callback(transactions.reverse()); // Reverse the array before passing to callback
       },
       error => console.error('Error retrieving transactions:', error)
     );
   });
 };
+
 
 export const getTotalExpenses = (callback: (total: number) => void) => {
   db.transaction(tx => {

@@ -6,6 +6,7 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import FilterModal from '../component/FilterModal';
 import IncomeHeader from '../component/IncomeHeader';
 import moment from 'moment';
+import MyNativeAd from '../adds/NativeAdComponent';
 
 const Incomes = () => {
   const route = useRoute();
@@ -130,7 +131,7 @@ const Incomes = () => {
   return (
     <View>
      <IncomeHeader title="Incomes" onFilterPress={() => setFilterVisible(true)} />
-
+     {/* <MyNativeAd/> */}
       {filteredTransactions.length === 0 ? (
         <Text style={styles.noDataText}>No Data Found</Text>
       ) : (
